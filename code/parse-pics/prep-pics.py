@@ -3,7 +3,6 @@ import numpy as np
 import csv
 import os
 from PIL import Image
-import matplotlib.pyplot as plt
 
 
 # read original CT image and return it as numpy image
@@ -17,7 +16,7 @@ def load_itk_image(filename):
     return numpy_image, numpy_origin, numpy_spacing
 
 
-# read annotations CSV file
+# read candidates CSV file
 def read_csv(filename):
     lines = []
     with open(filename, newline='') as f:
@@ -66,10 +65,14 @@ for s in subset_dirs:
             if file.endswith(".mhd"):
                 all_mhd_file_paths.append(os.path.abspath(os.path.join(s, file)))
 
-# get abs path of candidates file
-candidates_path = os.path.abspath(os.path.join(data_path, 'candidates.csv'))
+subsets_for_mhds = []
+# get subset number for mhd file path
+for path in all_mhd_file_paths:
+    subs = path.split("subset")
+    subsets_for_mhds.append(subs[1][0])
 
-numpy_image, numpy_origin, numpy_spacing = load_itk_image(all_mhd_file_paths[0])
+# get abs path of candidates file
+candidates_path = os.path.abspath(os.path.join(data_path, 'candidates_V2.csv'))
 
 # read candidates from csv file
 cands = read_csv(candidates_path)
@@ -78,18 +81,27 @@ pics_path = os.path.abspath(os.path.join(data_path, 'pics'))
 if not os.path.exists(pics_path):
     os.makedirs(pics_path)
 
+# save pics to hard drive
 i = 0
+voxel_width = 65
 for cand in cands[1:]:
-    world_coord = np.asarray([float(cand[3]), float(cand[2]), float(cand[1])])
-    voxel_coord = world_to_voxel_coord(world_coord, numpy_origin, numpy_spacing)
-    voxel_width = 65
-    patch = numpy_image[int(voxel_coord[0]), int(voxel_coord[1] - voxel_width / 2):int(voxel_coord[1] + voxel_width / 2),
-            int(voxel_coord[2] - voxel_width / 2):int(voxel_coord[2] + voxel_width / 2)]
-    patch = normalize_planes(patch)
-    print(len(patch))
-    # plt.imshow(patch, cmap='gray')
-    # plt.show()
-
-    Image.fromarray(patch * 255).convert('L').save(os.path.join(pics_path, 'candidate_num_' + str(i) +
-                                                                '_' + cand[4] + '.tiff'))
+    j = 0
+    for path in all_mhd_file_paths:
+        if path.endswith(cand[0] + ".mhd"):
+            numpy_image, numpy_origin, numpy_spacing = load_itk_image(path)
+            world_coord = np.asarray([float(cand[3]), float(cand[2]), float(cand[1])])
+            voxel_coord = world_to_voxel_coord(world_coord, numpy_origin, numpy_spacing)
+            patch = numpy_image[int(voxel_coord[0]),
+                    int(voxel_coord[1] - voxel_width / 2):int(voxel_coord[1] + voxel_width / 2),
+                    int(voxel_coord[2] - voxel_width / 2):int(voxel_coord[2] + voxel_width / 2)]
+            patch = normalize_planes(patch)
+            # make sure that array does not go out of bounds
+            if (int(voxel_coord[1] - voxel_width / 2) + int(voxel_coord[1] + voxel_width / 2) > voxel_width) and \
+                    (int(voxel_coord[2] - voxel_width / 2) + int(voxel_coord[2] + voxel_width / 2) > voxel_width):
+                Image.fromarray(patch * 255).convert('L').save(os.path.join(pics_path, 'candidate_' + str(i) +
+                                                                            '_subset_' + subsets_for_mhds[j]
+                                                                            + '_class_' + cand[4] + '.tiff'))
+            break
+        j += 1
     i += 1
+

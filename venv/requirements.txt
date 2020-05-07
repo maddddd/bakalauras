@@ -3,4 +3,5 @@ pandas
 SimpleITK
 scikit-image
 pydicom
+threadsafe-tkinter
 
