@@ -4,8 +4,17 @@ from pathlib import Path
 from PIL import Image
 from PIL import ImageTk
 import sys
+import init_paths
 
-# temp
+init_paths.init_sys_folders()
+
+import test_all_networks
+import original_cnn
+import mask_r_cnn
+import mgi_cnn
+import vgg16_cnn
+
+# data_navigation
 path = os.path.join(Path(Path(os.getcwd()).parent).parent, 'data', 'pics', 'candidate_0_subset_7_class_0.tiff')
 #
 
@@ -18,6 +27,44 @@ positive_text = 'teigiama.'
 negative_text = 'neigiama.'
 open_button_text = 'Rasti nuotrauką diske'
 random_button_text = 'Atsitiktinė nuotrauka'
+testing_mnist_text = 'Tinklai testuojami naudojant MNIST rašto ženklus . . .'
+result_text = 'Rezultatai: '
+original_cnn_text = 'Tradicinis konv. tinklas: '
+mask_r_cnn_text = 'MGI CNN tinklas: '
+vgg16_cnn_text = 'VGG16 konv. tinklas: '
+mgi_cnn_text = 'MGI-CNN tinklas: '
+newline = '\n'
+
+
+# wrappers around utility functions (to be able to visualize results in tkinter)
+def test_all_networks_wrap():
+    console.delete(1.0, tk.END)
+    console.insert(tk.END, testing_mnist_text)
+    test_all_networks.test_networks()
+    console.delete(1.0, tk.END)
+    console.insert(tk.END, result_text + newline)
+    console.insert(tk.END, original_cnn_text + newline)
+    console.insert(tk.END, mask_r_cnn_text + newline)
+    console.insert(tk.END, vgg16_cnn_text + newline)
+    console.insert(tk.END, mgi_cnn_text + newline)
+
+
+def train_original_cnn_wrap():
+    or_cnn = original_cnn.OriginalCnn()
+    or_cnn.train()
+
+
+def train_mask_r_cnn_wrap():
+    print('todo')
+
+
+def train_mgi_cnn_wrap():
+    print('todo')
+
+
+def train_vgg16_cnn_wrap():
+    print('todo')
+
 
 # init tk app
 root = tk.Tk()
@@ -61,7 +108,7 @@ window = tk.Canvas(root, bg='black', bd=0, highlightthickness=0)
 # resize image to be bigger on canvas
 photo = ImageTk.PhotoImage(Image.open(path).resize((250, 250), Image.ANTIALIAS))
 
-# pack widgets & bind controls
+# pack widgets & bind controls for title bar
 title_bar.pack(expand=0, fill='x')
 close_button.pack(side='right')
 window.pack(expand=1, fill='both', padx='10', pady='10')
@@ -75,17 +122,33 @@ title = tk.Label(title_bar, text=title_text, bg='#373837', fg='white', font='non
 title.pack()
 
 # add random pic to window
-tk.Label(window, image=photo, bg="black").grid(row=1, column=1, rowspan=3, columnspan=2)
+tk.Label(window, image=photo, bg="black").grid(row=1, column=1, rowspan=3, sticky='W')
 tk.Label(window, text=pic_comment_text, bg='black', fg='white', font='none 10')\
-    .grid(row=4, column=1, columnspan=2)
+    .grid(row=4, column=1)
 
 # add console to the window
-console = tk.Text(window, bg='#373837', height='5', width='60').grid(row=5, column=1)
+console = tk.Text(window, bg='#373837', height='5', width='60', state='normal') #.grid(row=5, column=1, columnspan=4)
+console.grid(row=5, column=1, columnspan=4)
+
+# add test button:
+#tk.Label(window, text='test_label', bg='black', fg='white', font='none 10').grid(row=1, column=2, sticky='W')
+#tk.Button(window, text='test', command=test_all_networks_wrap, bg='yellow', highlightthickness=0, padx=5)\
+#    .grid(row=1, column=2)
+# original conv:
+tk.Button(window, text='or_cnn', command=train_original_cnn_wrap, bg='yellow', highlightthickness=0, padx=5)\
+    .grid(row=1, column=2)
+# mask r cnn:
+tk.Button(window, text='mask_r', command=train_mask_r_cnn_wrap, bg='yellow', highlightthickness=0, padx=5)\
+    .grid(row=1, column=3)
+# mgi cnn:
+tk.Button(window, text='mgi_cnn', command=train_mgi_cnn_wrap, bg='yellow', highlightthickness=0, padx=5)\
+    .grid(row=2, column=2)
+# vgg16 cnn:
+tk.Button(window, text='vgg16_cnn', command=train_vgg16_cnn_wrap, bg='yellow', highlightthickness=0, padx=5)\
+    .grid(row=2, column=3)
 
 # add pseudo-margins to grid
-col_count, row_count = window.grid_size()
-for i in range(0, col_count):
-    window.grid_columnconfigure(i, minsize=20)
-    window.grid_rowconfigure(i, minsize=20)
+window.grid_columnconfigure(0, minsize=20)
+window.grid_rowconfigure(0, minsize=20)
 
 root.mainloop()
