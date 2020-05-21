@@ -15,7 +15,7 @@ import mgi_cnn
 import vgg16_cnn
 
 # data_navigation
-path = os.path.join(Path(Path(os.getcwd()).parent).parent, 'data', 'pics', 'candidate_0_subset_7_class_0.tiff')
+path = os.path.join(Path(Path(os.getcwd()).parent).parent, 'data', 'pics', 'candidate_0_subset_9_class_0.tiff')
 #
 
 # text strings - LT:

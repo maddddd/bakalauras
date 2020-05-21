@@ -6,8 +6,17 @@ import torch
 from torch.utils import data
 
 
+# from numpy array
+def cut_image(image, new_size):
+    if new_size == 65:
+        return image
+    start_index = int((len(image) - new_size) / 2)
+    end_index = start_index + new_size
+    return image[start_index:end_index, start_index:end_index]
+
+
 class LungsDataSet(object):
-    def __init__(self, data_set_type, batch_size):   # train, test, untouched
+    def __init__(self, data_set_type, batch_size, image_size):   # train, test, untouched
         pics_path = os.path.join(Path(Path(os.getcwd()).parent).parent, 'data', 'pics')
         images = []
         labels = []
@@ -21,7 +30,9 @@ class LungsDataSet(object):
 
                         img = Image.open(os.path.abspath(os.path.join(pics_path, file)))
                         img = np.array(img)
-                        if img.size == 65 * 65:
+                        if image_size != 65:
+                            img = cut_image(img, image_size)
+                        if img.size == image_size * image_size:
                             images.append(img)
                             label = file[len(file) - 6]
                             labels.append(int(label))
@@ -32,7 +43,9 @@ class LungsDataSet(object):
 
                         img = Image.open(os.path.abspath(os.path.join(pics_path, file)))
                         img = np.array(img)
-                        if img.size == 65 * 65:
+                        if image_size != 65:
+                            img = cut_image(img, image_size)
+                        if img.size == image_size * image_size:
                             images.append(img)
                             label = file[len(file) - 6]
                             labels.append(int(label))
@@ -42,23 +55,17 @@ class LungsDataSet(object):
                     if 'subset_9' in file:
                         img = Image.open(os.path.abspath(os.path.join(pics_path, file)))
                         img = np.array(img)
-                        if img.size == 65 * 65:
+                        if image_size != 65:
+                            img = cut_image(img, image_size)
+                        if img.size == image_size * image_size:
                             images.append(img)
                             label = file[len(file) - 6]
                             labels.append(int(label))
                     self.num += 1
-            images = images
             images = torch.tensor(images)
             labels = torch.tensor(labels)
         self.tensor_data_set = data.TensorDataset(images, labels)
         self.data_loader = data.DataLoader(self.tensor_data_set, batch_size=batch_size, shuffle=True, num_workers=8)
-
-    def get_data(self):
-        return self.tensor_data_set
-
-    # unpack labels:
-    # example:
-    # 1, 0, 1, 1 -> 0 1, 1 0, 0 1, 0 1
 
 
 """

@@ -11,15 +11,17 @@ from pathlib import Path
 
 
 class CNN(nn.Module):
-    def __init__(self, lr, epochs, batch_size, data_set_type):
+    def __init__(self, lr, epochs, batch_size, data_set_type, image_size):
         super(CNN, self).__init__()
         self.epochs = epochs
         self.lr = lr
         self.batch_size = batch_size
+        self.image_size = image_size
         self.num_classes = 2
         self.loss_history = []
         self.acc_history = []
-        self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
+        # self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
+        self.device = T.device('cpu')
         self.conv1 = nn.Conv2d(1, 32, 3)  # grayscale, 32 conv. filters, 3x3 size
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 32, 3)
@@ -41,13 +43,13 @@ class CNN(nn.Module):
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # for learning
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
-        self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size)
+        self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, self.image_size)    # resize to 40x40 pixels
         self.tensor_data_set = self.data_set.tensor_data_set
         self.data_loader = self.data_set.data_loader
         self.temp = 0
 
     def calc_input_dims(self):
-        batch_data = T.zeros((1, 1, 65, 65))
+        batch_data = T.zeros((1, 1, self.image_size, self.image_size))
         batch_data = self.conv1(batch_data)
         # batch_data = self.bn1(batch_data)
         batch_data = self.conv2(batch_data)
@@ -153,10 +155,9 @@ class CNN(nn.Module):
 
 
 if __name__ == "__main__":
-    # torch.multiprocessing.freeze_support()
-    cnn = CNN(0.001, 5, 128, 'untouched')
+    cnn = CNN(0.001, 50, 48, 'untouched', 40)
     cnn.train_cnn()
     tools.save_model(cnn, 'or_cnn')
     load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets', 'or_cnn.pt'))
-    cnn_2 = tools.load_or_cnn_model(0.001, 5, 128, load_path)
+    cnn_2 = tools.load_or_cnn_model(0.001, 5, 48, 40, load_path)
     cnn_2.test_cnn()

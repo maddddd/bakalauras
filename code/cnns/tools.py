@@ -15,15 +15,18 @@ def save_model(model, model_type):
     torch.save({'state_dict': model.state_dict()}, model_path)
 
 
-def load_or_cnn_model(lr, epochs, batch_size, path):
-    loaded_cnn = or_cnn.CNN(lr, epochs, batch_size, 'untouched')
+def load_or_cnn_model(lr, epochs, batch_size, image_size, path):
+    loaded_cnn = or_cnn.CNN(lr, epochs, batch_size, 'untouched', image_size)
     state_dict = torch.load(path)['state_dict']
     loaded_cnn.load_state_dict(state_dict)
     return loaded_cnn
 
 
-def load_mgi_cnn_model():
-    print("TODO")
+def load_mgi_cnn_model(lr, epochs, batch_size, path):
+    loaded_mgi = mgi_cnn.MGI_CNN(lr, epochs, batch_size, 'untouched')
+    state_dict = torch.load(path)['state_dict']
+    loaded_mgi.load_state_dict(state_dict)
+    return loaded_mgi
 
 
 def load_vgg16_cnn_model():
