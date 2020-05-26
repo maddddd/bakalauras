@@ -83,7 +83,7 @@ if not os.path.exists(pics_path):
 
 # save pics to hard drive
 i = 0
-voxel_width = 65
+voxel_width = 128
 for cand in cands[1:]:
     j = 0
     for path in all_mhd_file_paths:

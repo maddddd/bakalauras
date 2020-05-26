@@ -5,6 +5,7 @@ import torch.optim as optim
 import torch.multiprocessing
 import numpy as np
 import pics_dataset
+import tools
 
 
 class VGG16_CNN(nn.Module):
@@ -47,9 +48,10 @@ class VGG16_CNN(nn.Module):
         self.dil_conv2 = nn.Conv2d(8, 4, 3, dilation=2)
         self.bn12 = nn.BatchNorm2d(4)
 
-        input_dims = self.calc_input_dims()
+        self.input_dims = self.calc_input_dims()
 
-        self.fc1 = nn.Linear(input_dims, self.num_classes)  # perceptron
+        self.fc1 = nn.Linear(self.input_dims, self.num_classes)  # perceptron
+        print(self.fc1)
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # for learning
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
@@ -176,7 +178,7 @@ class VGG16_CNN(nn.Module):
         hypercolumn_read = resized_batch_data[:, :, 24:40, 24:40].flatten()
         hypercolumn = torch.cat((hypercolumn, hypercolumn_read), dim=0)
         hypercolumn = hypercolumn.view(self.batch_size, -1)
-
+        print(hypercolumn.size())
         classes = self.fc1(hypercolumn)
 
         return classes
@@ -190,21 +192,22 @@ class VGG16_CNN(nn.Module):
                 self.optimizer.zero_grad()
                 label = label.to(self.device)
                 pic = pic.to(self.device)
-                prediction = self.forward_pass(pic)
-                prediction = prediction.to(self.device)
-                loss = self.loss(prediction, label)
-                prediction = F.softmax(prediction, dim=0)
-                classes = T.argmax(prediction, dim=1)
-                wrong = T.where(classes != label,
-                                T.tensor([1.]).to(self.device),
-                                T.tensor([0.]).to(self.device))
-                acc = 1 - T.sum(wrong) / self.batch_size
+                if pic.size()[0] == self.batch_size:
+                    prediction = self.forward_pass(pic)
+                    prediction = prediction.to(self.device)
+                    loss = self.loss(prediction, label)
+                    prediction = F.softmax(prediction, dim=0)
+                    classes = T.argmax(prediction, dim=1)
+                    wrong = T.where(classes != label,
+                                    T.tensor([1.]).to(self.device),
+                                    T.tensor([0.]).to(self.device))
+                    acc = 1 - T.sum(wrong) / self.batch_size
 
-                ep_acc.append(acc.item())
-                self.acc_history.append(acc.item())
-                ep_loss += loss.item()
-                loss.backward()
-                self.optimizer.step()
+                    ep_acc.append(acc.item())
+                    self.acc_history.append(acc.item())
+                    ep_loss += loss.item()
+                    loss.backward()
+                    self.optimizer.step()
             print('Finish epoch ', i, 'epoch loss %.3f ' % ep_loss,
                   'accuracy %.3f ' % np.mean(ep_acc))
             self.loss_history.append(ep_loss)
@@ -238,8 +241,9 @@ class VGG16_CNN(nn.Module):
 
 
 if __name__ == "__main__":
-    vgg16 = VGG16_CNN(0.001, 50, 8, 'untouched')
+    vgg16 = VGG16_CNN(0.0001, 500, 48, 'untouched')
     vgg16.train_vgg16_cnn()
+    #tools.save_model(vgg16, 'vgg16_cnn')
 
     """
     cnn.train_cnn()
@@ -248,4 +252,3 @@ if __name__ == "__main__":
     cnn_2 = tools.load_or_cnn_model(0.001, 5, 48, 40, load_path)
     cnn_2.test_cnn()
     """
-

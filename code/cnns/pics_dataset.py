@@ -67,10 +67,3 @@ class LungsDataSet(object):
         self.tensor_data_set = data.TensorDataset(images, labels)
         self.data_loader = data.DataLoader(self.tensor_data_set, batch_size=batch_size, shuffle=True, num_workers=8)
 
-
-"""
-l = LungsDataSet('untouched')
-print(type(l.get_data_loader().dataset))
-print(l.get_data_loader().batch_size)
-print(len(l.get_data_loader()))
-"""

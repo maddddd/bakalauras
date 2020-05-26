@@ -6,6 +6,10 @@ from PIL import ImageTk
 import sys
 import init_paths
 
+"""
+    Grafine programele nuotrauku atpazinimui.
+"""
+
 init_paths.init_sys_folders()
 
 import test_all_networks
@@ -18,7 +22,7 @@ import vgg16_cnn
 path = os.path.join(Path(Path(os.getcwd()).parent).parent, 'data', 'pics', 'candidate_0_subset_9_class_0.tiff')
 #
 
-# text strings - LT:
+# teksto stringai:
 title_text = 'Plaučių nuotraukų klasifikavimas'
 pic_comment_text = 'Rodoma atsitiktinė nuotrauka'
 found_class_text = 'Nustatyta klasė: '
@@ -36,7 +40,7 @@ mgi_cnn_text = 'MGI-CNN tinklas: '
 newline = '\n'
 
 
-# wrappers around utility functions (to be able to visualize results in tkinter)
+# wrapper funkcijos (kad galima butu jas susieti su tkinter)
 def test_all_networks_wrap():
     console.delete(1.0, tk.END)
     console.insert(tk.END, testing_mnist_text)
@@ -66,10 +70,10 @@ def train_vgg16_cnn_wrap():
     print('todo')
 
 
-# init tk app
+# tk aplikacijos inicializavimas
 root = tk.Tk()
 
-# root position for window dragging
+# lango pozicijos (naudojama lango tempimui)
 last_click_x = 0
 last_click_y = 0
 
@@ -96,7 +100,7 @@ def dragging(event):
     root.geometry("+%s+%s" % (x, y))
 
 
-# hide default title bar and add a new one
+# operacines sistemos sugeneruotos lango titulines juostos paslepimas ir naujos juostos sukurimas
 root.overrideredirect(True)
 root.geometry('550x450+200+200')
 root.configure(background='#373837')    # gray background
@@ -105,10 +109,10 @@ title_bar = tk.Frame(root, bg='#373837', relief='raised', bd=2, highlightthickne
 close_button = tk.Button(title_bar, text='X', command=lambda: sys.exit(), bg='#373837', highlightthickness=0, padx=5)
 window = tk.Canvas(root, bg='black', bd=0, highlightthickness=0)
 
-# resize image to be bigger on canvas
+# paveikslo dydzio pakeitimas
 photo = ImageTk.PhotoImage(Image.open(path).resize((250, 250), Image.ANTIALIAS))
 
-# pack widgets & bind controls for title bar
+# GUI elementu surisimas su langu
 title_bar.pack(expand=0, fill='x')
 close_button.pack(side='right')
 window.pack(expand=1, fill='both', padx='10', pady='10')
@@ -117,20 +121,20 @@ title_bar.bind('<B1-Motion>', dragging)
 close_button.bind('<Enter>', change_on_hovering)
 close_button.bind('<Leave>', return_to_normal_state)
 
-# add title to title bar
+# pavadinimo pridejimas titulinei juostai
 title = tk.Label(title_bar, text=title_text, bg='#373837', fg='white', font='none 10')
 title.pack()
 
-# add random pic to window
+# atsitiktines nuotraukos rodymas
 tk.Label(window, image=photo, bg="black").grid(row=1, column=1, rowspan=3, sticky='W')
 tk.Label(window, text=pic_comment_text, bg='black', fg='white', font='none 10')\
     .grid(row=4, column=1)
 
-# add console to the window
+# konsoles pridejimas langui
 console = tk.Text(window, bg='#373837', height='5', width='60', state='normal') #.grid(row=5, column=1, columnspan=4)
 console.grid(row=5, column=1, columnspan=4)
 
-# add test button:
+
 #tk.Label(window, text='test_label', bg='black', fg='white', font='none 10').grid(row=1, column=2, sticky='W')
 #tk.Button(window, text='test', command=test_all_networks_wrap, bg='yellow', highlightthickness=0, padx=5)\
 #    .grid(row=1, column=2)
@@ -147,7 +151,7 @@ tk.Button(window, text='mgi_cnn', command=train_mgi_cnn_wrap, bg='yellow', highl
 tk.Button(window, text='vgg16_cnn', command=train_vgg16_cnn_wrap, bg='yellow', highlightthickness=0, padx=5)\
     .grid(row=2, column=3)
 
-# add pseudo-margins to grid
+# pseudo-parasciu pridejimas tinkleliui
 window.grid_columnconfigure(0, minsize=20)
 window.grid_rowconfigure(0, minsize=20)
 
