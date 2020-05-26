@@ -396,18 +396,19 @@ class VGG16_CNN(nn.Module):
                       'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
                       np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
 
-    def test_cnn(self):
+    def test_cnn(self, verbose=True, hyper_test_iters=5):
+        if verbose is False:
+            print("Testuojamas VGG16 tipo tinklas. . .")
         self.train(mode=False)
-        print("\n1 TESTAVIMO ETAPAS: nustatomi testavimo hyperkolonos sluoksniuose rezultatai")
+        if verbose is True:
+            print("\n1 TESTAVIMO ETAPAS: nustatomi testavimo hyperkolonos sluoksniuose rezultatai")
         for h in range(0, 6):
-            print("\nTestuojamas %d hyperkolonos sluoksnis\n" % h)
+            if verbose is True:
+                print("\nTestuojamas %d hyperkolonos sluoksnis\n" % h)
             hyper_acc = []
             hyper_false_pos = []
             hyper_false_neg = []
-            for i in range(2):
-                """
-                    5 - magic number. Is kiekvieno hyperkolonos sluoksnio testavimo istorijos bus isvestas vidurkis.
-                """
+            for i in range(hyper_test_iters):
                 ep_loss = 0
                 ep_acc = []
                 ep_false_pos = []
@@ -447,10 +448,10 @@ class VGG16_CNN(nn.Module):
                         ep_false_pos.append(f_pos.item())
                         f_neg = np.sum(false_neg) / self.batch_size
                         ep_false_neg.append(f_neg.item())
-
-                print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
-                      'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
-                      np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
+                if verbose is True:
+                    print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
+                          'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
+                          np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
                 hyper_acc.append(np.mean(ep_acc))
                 hyper_false_pos.append(np.mean(ep_false_pos))
                 hyper_false_neg.append(np.mean(ep_false_neg))
@@ -458,11 +459,71 @@ class VGG16_CNN(nn.Module):
             self.false_pos_history_hyper.append(np.mean(hyper_false_pos))
             self.false_neg_history_hyper.append(np.mean(hyper_false_neg))
 
-        print("\n1 TESTAVIMO etapas baigtas. Gauti tokie tinklo sluoksniu tikslumai:")
+        if verbose is True:
+            print("\n1 TESTAVIMO etapas baigtas. Gauti tokie tinklo sluoksniu tikslumai:")
         for i in range(6):
-            print("%d sluoksnis: " % i, "tikslumas %.3f" % self.acc_history_hyper[i],
-                  "klaidingai teigiamu vidurkis %.3f" % self.false_pos_history_hyper[i],
-                  "klaidingai neigiamu vidurkis %.3f" % self.false_neg_history_hyper[i])
+            if verbose is True:
+                print("%d sluoksnis: " % i, "tikslumas %.3f" % self.acc_history_hyper[i],
+                      "klaidingai teigiamu vidurkis %.3f" % self.false_pos_history_hyper[i],
+                      "klaidingai neigiamu vidurkis %.3f" % self.false_neg_history_hyper[i])
+
+        if verbose is True:
+            print("\n2 TESTAVIMO ETAPAS: klasifikuojama testavimo duomenu aibe, atsizvelgiant i "
+                  "hyperkolonu konsensusa\n")
+
+        for i in range(self.epochs):
+            ep_loss = 0
+            ep_acc = []
+            ep_false_pos = []
+            ep_false_neg = []
+            for j, (pics, labels) in enumerate(self.data_loader):
+                labels = labels.to(self.device)
+                pics = pics.to(self.device)
+                if pics.size()[0] == self.batch_size:
+                    all_predictions = T.zeros((self.batch_size, 2))
+                    for h in range(6):
+                        prediction = self.forward_pass_hyper(pics, h)
+                        prediction = prediction.to(self.device)
+                        prediction = F.softmax(prediction, dim=0)
+                        all_predictions += prediction * self.acc_history_hyper[h]
+
+                    classes = T.argmax(all_predictions, dim=1)   # grazina didziausio argumento indeksa, o ne reiksme
+
+                    wrong = T.where(classes != labels,
+                                    T.tensor([1.]).to(self.device),
+                                    T.tensor([0.]).to(self.device))
+                    acc = 1 - T.sum(wrong) / self.batch_size
+
+                    ep_acc.append(acc.item())
+
+                    false_pos = []
+                    false_neg = []
+                    for k in range(0, len(classes)):
+                        if labels[k] == 0 and classes[k] == 1:
+                            false_pos.append(1.)
+                        else:
+                            false_pos.append(0.)
+                        if labels[k] == 1 and classes[k] == 0:
+                            false_neg.append(1.)
+                        else:
+                            false_neg.append(0.)
+                    false_pos = np.array(false_pos)
+                    false_neg = np.array(false_neg)
+
+                    f_pos = np.sum(false_pos) / self.batch_size
+                    ep_false_pos.append(f_pos.item())
+                    f_neg = np.sum(false_neg) / self.batch_size
+                    ep_false_neg.append(f_neg.item())
+            if verbose is True:
+                print('Baigta epocha ', i, 'tikslumo vidurkis %.3f ' % np.mean(ep_acc),
+                      'klaidingai teigiamu vidurkis %.3f ' % np.mean(ep_false_pos),
+                      'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
+            self.acc_history.append(np.mean(ep_acc))
+            self.false_pos_history.append(np.mean(ep_false_pos))
+            self.false_neg_history.append(np.mean(ep_false_neg))
+
+        tools.save_accuracy_params(self, 'vgg16_cnn', np.mean(self.acc_history), np.mean(self.false_pos_history),
+                                   np.mean(self.false_neg_history))
 
     """
         Gradientu uzrakinimas visiems hyperkolona treniruojantiems perceptronams, isskyrus nurodytajam.
@@ -486,4 +547,4 @@ if __name__ == "__main__":
     vgg16 = VGG16_CNN(0.001, 1, 32, 'untouched')
     vgg16.train_cnn()
     #tools.save_model(vgg16, 'vgg16_cnn')
-    vgg16.test_cnn()
+    vgg16.test_cnn(verbose=True, hyper_test_iters=1)

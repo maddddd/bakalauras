@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 
-# read original CT image and return it as numpy image
+# perskaitom originalu komp. tomografijos paveiksla ir grazinam ji kaip numpy image
 def load_itk_image(filename):
     itk_image = sitk.ReadImage(filename)
     numpy_image = sitk.GetArrayFromImage(itk_image)
@@ -16,7 +16,7 @@ def load_itk_image(filename):
     return numpy_image, numpy_origin, numpy_spacing
 
 
-# read candidates CSV file
+# perskaitom kandidatu CSV faila
 def read_csv(filename):
     lines = []
     with open(filename, newline='') as f:
@@ -26,7 +26,7 @@ def read_csv(filename):
     return lines
 
 
-# change world coordinates to voxel coordinates
+# pakeiciam tikro pasaulio koordinates i voxel koordinates
 def world_to_voxel_coord(world_coord, origin, spacing):
     stretched_voxel_coord = np.absolute(world_coord - origin)
     voxel_coord = stretched_voxel_coord / spacing
@@ -43,13 +43,12 @@ def normalize_planes(npz_array):
     npz_array[npz_array < 0] = 0.
     return npz_array
 
-
-# get abs path of data folder
+# randam absoliutu kelia iki data katalogo
 data_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 data_path = os.path.abspath(os.path.join(data_path, os.pardir))
 data_path = os.path.abspath(os.path.join(data_path, 'data'))
 
-# get abs paths of data subsets
+# randam absoliucius kelius iki subsets katalogu
 subset_dirs = []
 for root, dirs, files in os.walk(data_path):
     for d in dirs:
@@ -58,7 +57,7 @@ for root, dirs, files in os.walk(data_path):
             subset_dirs.append(subset_path)
 
 all_mhd_file_paths = []
-# iterate through subsets, searching for mhd files recursively
+# iteruojam subsets, ieskodami mhd failu rekursyviai
 for s in subset_dirs:
     for root, dirs, files in os.walk(s):
         for file in files:
@@ -66,22 +65,22 @@ for s in subset_dirs:
                 all_mhd_file_paths.append(os.path.abspath(os.path.join(s, file)))
 
 subsets_for_mhds = []
-# get subset number for mhd file path
+# randam subset numeri mhd failui
 for path in all_mhd_file_paths:
     subs = path.split("subset")
     subsets_for_mhds.append(subs[1][0])
 
-# get abs path of candidates file
+# randam absoliutu kandidatu failo kelia
 candidates_path = os.path.abspath(os.path.join(data_path, 'candidates_V2.csv'))
 
-# read candidates from csv file
+# skaitom kandidatus is csv failo
 cands = read_csv(candidates_path)
 
 pics_path = os.path.abspath(os.path.join(data_path, 'pics'))
 if not os.path.exists(pics_path):
     os.makedirs(pics_path)
 
-# save pics to hard drive
+# issaugom nuotraukas i kieta diska
 i = 0
 voxel_width = 128
 for cand in cands[1:]:

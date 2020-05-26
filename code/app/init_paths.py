@@ -11,4 +11,4 @@ def print_all_paths():
 def init_sys_folders():
     code_folder_path = Path(os.getcwd()).parent
     sys.path.append(os.path.abspath(os.path.join(code_folder_path, 'cnns')))
-    sys.path.append(os.path.abspath(os.path.join(code_folder_path, 'mnist')))
+    sys.path.append(os.path.abspath(os.path.join(code_folder_path, 'app')))

@@ -174,13 +174,16 @@ class CNN(nn.Module):
     """
         testavimo funkcija    
     """
-    def test_cnn(self):
+    def test_cnn(self, verbose=True):
+        if verbose is False:
+            print("Testuojamas tradicinio tipo tinklas. . .")
         self.train(mode=False)
         for i in range(self.epochs):
             ep_loss = 0
             ep_acc = []
             ep_false_pos = []
             ep_false_neg = []
+            # all_predictions = T.zeros()
             for j, (pics, labels) in enumerate(self.data_loader):
                 labels = labels.to(self.device)
                 pics = pics.to(self.device)
@@ -215,25 +218,26 @@ class CNN(nn.Module):
                 ep_false_pos.append(f_pos.item())
                 f_neg = np.sum(false_neg) / self.batch_size
                 ep_false_neg.append(f_neg.item())
-
-            print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
-                  'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
-                  np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
+            if verbose is True:
+                print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
+                      'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
+                      np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
             self.loss_history.append(ep_loss)
             self.acc_history.append(np.mean(ep_acc))
             self.false_pos_history.append(np.mean(ep_false_pos))
             self.false_neg_history.append(np.mean(ep_false_neg))
+
         tools.save_accuracy_params(self, 'or_cnn', np.mean(self.acc_history), np.mean(self.false_pos_history),
                                    np.mean(self.false_neg_history))
 
 
 if __name__ == "__main__":
-    #cnn = CNN(0.001, 1, 8, 'untouched', 40)
-    #cnn.train_cnn()
-    #cnn.test_cnn()
-    # tools.save_model(cnn, 'or_cnn')
-    #load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets',
+    cnn = CNN(0.001, 5, 32, 'untouched', 40)
+    cnn.train_cnn()
+    tools.save_model(cnn, 'or_cnn')
+    cnn.test_cnn()
+
+    # load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets',
     #                                         'or_cnn_lr_0.001_epochs_100_batch_size_48_image_size_40.pt'))
     # cnn_2 = tools.load_model(load_path, 'or_cnn', 'untouched', 5)
     # cnn_2.test_cnn()
-    tools.save_accuracy_params('a', 'or_cnn', 0.1, 0.2, 0.3)

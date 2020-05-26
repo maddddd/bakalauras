@@ -61,6 +61,32 @@ def save_accuracy_params(model, model_type, acc, false_pos, false_neg):
     if not os.path.exists(path):
         os.makedirs(path)
     path = os.path.abspath(os.path.join(path, 'params.txt'))
-    print(os.path.isfile(path))
-    with open('path', "w+") as f:
-        print('test')
+
+    # sukuriam params.txt faila, kuriame laikome tikslumo duomenis (jei jo dar nera)
+    if not os.path.isfile(path):
+        open(path, "w+").close()
+
+    name = model_type + '_lr_' + str(model.lr) + '_epochs_' + str(model.epochs) + '_batch_size_' + \
+           str(model.batch_size) + '_image_size_' + str(model.image_size)
+
+    # patikrinam, ar tokie duomenys dar neegzistuoja
+    with open(path, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.split(' ')
+            if line[0] == name:
+                return
+
+    # jei neegzistuoja, sukuriam:
+    with open(path, 'a') as f:
+        f.write(name + " %.5f " % acc + "%.5f " % false_pos + "%.5f " % false_neg + "\n")
+
+
+def get_model_path_in_hdd(model):
+    name = ''
+    if model is mgi_cnn.MGI_CNN:
+        name = 'mgi_cnn'
+    if model is or_cnn.CNN:
+        name = 'or_cnn'
+    if model is vgg16_cnn.VGG16_CNN:
+        name = 'vgg16_cnn'

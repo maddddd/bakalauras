@@ -12,9 +12,7 @@ import init_paths
 
 init_paths.init_sys_folders()
 
-import test_all_networks
-import original_cnn
-import mask_r_cnn
+import or_cnn
 import mgi_cnn
 import vgg16_cnn
 
@@ -44,7 +42,6 @@ newline = '\n'
 def test_all_networks_wrap():
     console.delete(1.0, tk.END)
     console.insert(tk.END, testing_mnist_text)
-    test_all_networks.test_networks()
     console.delete(1.0, tk.END)
     console.insert(tk.END, result_text + newline)
     console.insert(tk.END, original_cnn_text + newline)

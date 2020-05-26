@@ -404,7 +404,9 @@ class MGI_CNN(nn.Module):
     """
         testavimo funkcija    
     """
-    def test_cnn(self):
+    def test_cnn(self, verbose=True):
+        if verbose is False:
+            print("Testuojamas MGI CNN tipo tinklas. . .")
         self.train(mode=False)
         for i in range(self.epochs):
             ep_loss = 0
@@ -448,25 +450,24 @@ class MGI_CNN(nn.Module):
                 ep_false_pos.append(f_pos.item())
                 f_neg = np.sum(false_neg) / self.batch_size
                 ep_false_neg.append(f_neg.item())
-
-            print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
-                  'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
-                  np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
+            if verbose is True:
+                print('Baigta epocha ', i, 'epochos nuostoliu suma %.3f ' % ep_loss,
+                      'tikslumo vidurkis %.3f ' % np.mean(ep_acc), 'klaidingai teigiamu vidurkis %.3f ' %
+                      np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
             self.loss_history.append(ep_loss)
             self.acc_history.append(np.mean(ep_acc))
             self.false_pos_history.append(np.mean(ep_false_pos))
             self.false_neg_history.append(np.mean(ep_false_neg))
+        tools.save_accuracy_params(self, 'mgi_cnn', np.mean(self.acc_history), np.mean(self.false_pos_history),
+                                   np.mean(self.false_neg_history))
 
 
 if __name__ == "__main__":
-    mgi = MGI_CNN(0.001, 2, 48, 'untouched')
+    mgi = MGI_CNN(0.001, 5, 32, 'untouched')
     mgi.train_cnn()
+    tools.save_model(mgi, 'mgi_cnn')
     mgi.test_cnn()
-    print(mgi.acc_history)
-    print(mgi.loss_history)
-    print(mgi.false_pos_history)
-    print(mgi.false_neg_history)
-    # tools.save_model(mgi, 'mgi_cnn')
+
     """
     load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent,
                                              'trained_nets',
@@ -474,5 +475,3 @@ if __name__ == "__main__":
     mgi_2 = tools.load_model(load_path, 'mgi_cnn', 'untouched', 10)
     mgi_2.test_cnn()
     """
-
-
