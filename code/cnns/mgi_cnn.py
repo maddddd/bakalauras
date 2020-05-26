@@ -7,8 +7,6 @@ import numpy as np
 from PIL import Image
 import pics_dataset
 import tools
-import os
-from pathlib import Path
 
 
 """
@@ -64,6 +62,7 @@ class MGI_CNN(nn.Module):
         self.epochs = epochs
         self.lr = lr
         self.batch_size = batch_size
+        self.data_set_type = data_set_type
         self.image_size = image_size
         self.num_classes = 2
         self.loss_history = []
@@ -129,8 +128,11 @@ class MGI_CNN(nn.Module):
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
 
-        self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, 40)
-        self.data_loader = self.data_set.data_loader
+        self.data_set = None
+        self.data_loader = None
+        if data_set_type != 'none':
+            self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, 40)
+            self.data_loader = self.data_set.data_loader
 
     """
         funkcija, skirta nustatyti paskutinio tinklo sluoksnio - perceptrono - ieiciu kiekiui. 
@@ -349,6 +351,9 @@ class MGI_CNN(nn.Module):
         treniravimo funkcija
     """
     def train_cnn(self):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         self.train(mode=True)
         for i in range(self.epochs):
             ep_loss = 0
@@ -405,6 +410,9 @@ class MGI_CNN(nn.Module):
         testavimo funkcija    
     """
     def test_cnn(self, verbose=True):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         if verbose is False:
             print("Testuojamas MGI CNN tipo tinklas. . .")
         self.train(mode=False)
@@ -464,9 +472,10 @@ class MGI_CNN(nn.Module):
 
 if __name__ == "__main__":
     mgi = MGI_CNN(0.001, 5, 32, 'untouched')
-    mgi.train_cnn()
-    tools.save_model(mgi, 'mgi_cnn')
-    mgi.test_cnn()
+    print(tools.get_model_path_in_hdd(mgi, 'mgi_cnn'))
+    # mgi.train_cnn()
+    # tools.save_model(mgi, 'mgi_cnn')
+    # mgi.test_cnn()
 
     """
     load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent,

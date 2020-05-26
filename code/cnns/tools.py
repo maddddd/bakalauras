@@ -82,11 +82,12 @@ def save_accuracy_params(model, model_type, acc, false_pos, false_neg):
         f.write(name + " %.5f " % acc + "%.5f " % false_pos + "%.5f " % false_neg + "\n")
 
 
-def get_model_path_in_hdd(model):
-    name = ''
-    if model is mgi_cnn.MGI_CNN:
-        name = 'mgi_cnn'
-    if model is or_cnn.CNN:
-        name = 'or_cnn'
-    if model is vgg16_cnn.VGG16_CNN:
-        name = 'vgg16_cnn'
+def get_model_path_in_hdd(model, model_type):
+    if model_type != 'or_cnn' and model_type != 'mgi_cnn' and model_type != 'vgg16_cnn':
+        return None
+
+    path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets'))
+    model_path = os.path.abspath(os.path.join(path, model_type + '_lr_' + str(model.lr) + '_epochs_' + str(model.epochs)
+                                              + '_batch_size_' + str(model.batch_size) + '_image_size_' +
+                                              str(model.image_size) + '.pt'))
+    return model_path

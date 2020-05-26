@@ -6,6 +6,8 @@ import torch.multiprocessing
 import numpy as np
 import pics_dataset
 import tools
+import consensus
+import mgi_cnn
 
 """
     "Paprastas" konvoliucinis neuroninis tinklas.
@@ -17,7 +19,7 @@ class CNN(nn.Module):
         lr              - mokymosi greitis
         epochs          - epochu skaicius
         batch_size      - mokymosi parametras, nusakantis kas kiek nuotrauku turi buti atnaujinti svoriai.
-        data_set_type   - 'train', 'test', 'untouched'
+        data_set_type   - 'train', 'test', 'untouched', 'none'
         image_size      - paveikslo dydis. Negali buti didesnis nei realaus paveikslo diske dydis
                         (testineje nuotrauku kolekcijoje - 65x65 pikseliai). Jei nurodytas dydis mazesnis,
                         nuotrauka apkerpama.
@@ -27,6 +29,7 @@ class CNN(nn.Module):
         self.epochs = epochs
         self.lr = lr
         self.batch_size = batch_size
+        self.data_set_type = data_set_type
         self.image_size = image_size
         self.num_classes = 2
         self.loss_history = []
@@ -53,13 +56,14 @@ class CNN(nn.Module):
         input_dims = self.calc_input_dims()
 
         self.fc1 = nn.Linear(input_dims, self.num_classes)  # perceptron
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # for learning
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # mokymuisi!
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
-        self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, self.image_size)    # resize to 40x40 pixels
-        self.tensor_data_set = self.data_set.tensor_data_set
-        self.data_loader = self.data_set.data_loader
-        self.temp = 0
+        self.data_set = None
+        self.data_loader = None
+        if data_set_type != 'none':
+            self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, self.image_size)
+            self.data_loader = self.data_set.data_loader
 
     """
         funkcija, skirta nustatyti paskutinio tinklo sluoksnio - perceptrono - ieiciu kiekiui. 
@@ -122,6 +126,9 @@ class CNN(nn.Module):
         treniravimo funkcija.
     """
     def train_cnn(self):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         self.train(mode=True)
         for i in range(self.epochs):
             ep_loss = 0
@@ -175,6 +182,9 @@ class CNN(nn.Module):
         testavimo funkcija    
     """
     def test_cnn(self, verbose=True):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         if verbose is False:
             print("Testuojamas tradicinio tipo tinklas. . .")
         self.train(mode=False)
@@ -183,7 +193,6 @@ class CNN(nn.Module):
             ep_acc = []
             ep_false_pos = []
             ep_false_neg = []
-            # all_predictions = T.zeros()
             for j, (pics, labels) in enumerate(self.data_loader):
                 labels = labels.to(self.device)
                 pics = pics.to(self.device)
@@ -233,11 +242,13 @@ class CNN(nn.Module):
 
 if __name__ == "__main__":
     cnn = CNN(0.001, 5, 32, 'untouched', 40)
-    cnn.train_cnn()
-    tools.save_model(cnn, 'or_cnn')
-    cnn.test_cnn()
+    # print(tools.get_model_path_in_hdd(cnn, 'or_cnn'))
+    # cnn.train_cnn()
+    # tools.save_model(cnn, 'or_cnn')
+    # nn.test_cnn()
 
     # load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets',
     #                                         'or_cnn_lr_0.001_epochs_100_batch_size_48_image_size_40.pt'))
     # cnn_2 = tools.load_model(load_path, 'or_cnn', 'untouched', 5)
     # cnn_2.test_cnn()
+

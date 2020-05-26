@@ -26,6 +26,7 @@ class VGG16_CNN(nn.Module):
         self.epochs = epochs
         self.lr = lr
         self.batch_size = batch_size
+        self.data_set_type = data_set_type
         self.image_size = image_size
         self.num_classes = 2
         self.loss_history = []
@@ -100,8 +101,11 @@ class VGG16_CNN(nn.Module):
 
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
-        self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, 64)
-        self.data_loader = self.data_set.data_loader
+        self.data_set = None
+        self.data_loader = None
+        if self.data_set_type != 'none':
+            self.data_set = pics_dataset.LungsDataSet(data_set_type, self.batch_size, 64)
+            self.data_loader = self.data_set.data_loader
 
     def calc_input_dims_original(self):
         batch_data = T.zeros((1, 1, self.image_size, self.image_size))
@@ -291,6 +295,9 @@ class VGG16_CNN(nn.Module):
             return classes
 
     def train_cnn(self):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         self.train(mode=True)
 
         # 1 treniravimo zingsnis:
@@ -397,6 +404,9 @@ class VGG16_CNN(nn.Module):
                       np.mean(ep_false_pos), 'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
 
     def test_cnn(self, verbose=True, hyper_test_iters=5):
+        if self.data_set_type == 'none':
+            print('Nuotraukos nebuvo ikeltos (pasirinkite kitoki tinklo tipa)')
+            return
         if verbose is False:
             print("Testuojamas VGG16 tipo tinklas. . .")
         self.train(mode=False)
