@@ -553,7 +553,15 @@ class VGG16_CNN(nn.Module):
 
 
 if __name__ == "__main__":
-    vgg16 = VGG16_CNN(0.001, 1, 32, 'untouched')
-    vgg16.train_cnn()
-    #tools.save_model(vgg16, 'vgg16_cnn')
-    vgg16.test_cnn(verbose=True, hyper_test_iters=1)
+    # inicializuojam modeli su treniravimo tipo duomenimis
+    cnn = VGG16_CNN(0.001, 50, 32, 'train', 64)
+    # istreniruojam modeli - gausim svorius
+    cnn.train_cnn()
+    # issaugom svorius i diska
+    tools.save_model(cnn, 'vgg16_cnn')
+    # gaunam issaugoto tinklo kelia diske
+    path = tools.get_model_path_in_hdd(cnn, 'vgg16_cnn')
+    # is naujo inicializuojam modeli, tik jau su testiniais duomenim
+    cnn = tools.load_model(path, 'vgg16_cnn', 'test', 50)
+    # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
+    cnn.test_cnn()

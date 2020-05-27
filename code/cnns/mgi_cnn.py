@@ -471,8 +471,16 @@ class MGI_CNN(nn.Module):
 
 
 if __name__ == "__main__":
-    mgi = MGI_CNN(0.001, 5, 32, 'untouched')
-    mgi.train_cnn()
-    # tools.save_model(mgi, 'mgi_cnn')
-    # mgi.test_cnn()
+    # inicializuojam modeli su treniravimo tipo duomenimis
+    cnn = MGI_CNN(0.001, 50, 32, 'train', 40)
+    # istreniruojam modeli - gausim svorius
+    cnn.train_cnn()
+    # issaugom svorius i diska
+    tools.save_model(cnn, 'mgi_cnn')
+    # gaunam issaugoto tinklo kelia diske
+    path = tools.get_model_path_in_hdd(cnn, 'mgi_cnn')
+    # is naujo inicializuojam modeli, tik jau su testiniais duomenim
+    cnn = tools.load_model(path, 'mgi_cnn', 'test', 50)
+    # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
+    cnn.test_cnn()
 

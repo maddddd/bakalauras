@@ -79,7 +79,13 @@ def save_accuracy_params(model, model_type, acc, false_pos, false_neg):
 
     # jei neegzistuoja, sukuriam:
     with open(path, 'a') as f:
-        f.write(name + " %.5f " % acc + "%.5f " % false_pos + "%.5f " % false_neg + "\n")
+        if 'vgg16' in name:
+            f.write(name + " %.5f " % acc + "%.5f " % false_pos + "%.5f " % false_neg +
+                    "%.5f " % model.acc_history_hyper[0] + "%.5f " % model.acc_history_hyper[1] +
+                    "%.5f " % model.acc_history_hyper[2] + "%.5f " % model.acc_history_hyper[3] +
+                    "%.5f " % model.acc_history_hyper[4] + "%.5f " % model.acc_history_hyper[5] + "\n")
+        else:
+            f.write(name + " %.5f " % acc + "%.5f " % false_pos + "%.5f " % false_neg + "\n")
 
 
 def get_model_path_in_hdd(model, model_type):

@@ -5,6 +5,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import mgi_cnn
+import or_cnn
 import tools
 import pics_dataset
 
@@ -86,6 +87,7 @@ def load_networks_from_paths():
     accuracies = []
     false_pos = []
     false_negs = []
+    vgg_accuracies = []
     path_in_disk = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets'))
     params_file_path = path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets',
                                                            'params.txt'))
@@ -113,6 +115,13 @@ def load_networks_from_paths():
                     accuracies.append(float(line[1]))
                     false_pos.append(float(line[2]))
                     false_negs.append(float(line[3]))
+                    if 'vgg' in p:
+                        loaded_nets[len(loaded_nets)-1].acc_history_hyper.append(float(line[4]))
+                        loaded_nets[len(loaded_nets) - 1].acc_history_hyper.append(float(line[5]))
+                        loaded_nets[len(loaded_nets) - 1].acc_history_hyper.append(float(line[6]))
+                        loaded_nets[len(loaded_nets) - 1].acc_history_hyper.append(float(line[7]))
+                        loaded_nets[len(loaded_nets) - 1].acc_history_hyper.append(float(line[8]))
+                        loaded_nets[len(loaded_nets) - 1].acc_history_hyper.append(float(line[9]))
     return loaded_nets, accuracies, false_pos, false_negs
 
 
@@ -158,7 +167,15 @@ class Consensus:
                                 pics_20x20, pics_30x30, pics_40x40 = mgi_cnn.get_resized_images(resized_pics)
                                 prediction = self.cnns[j].forward_pass(pics_20x20, pics_30x30, pics_40x40)
                             else:
-                                prediction = self.cnns[j].forward_pass(resized_pics)
+                                if isinstance(self.cnns[j], or_cnn.CNN):
+                                    prediction = self.cnns[j].forward_pass(resized_pics)
+                                else:
+                                    prediction = T.zeros((self.batch_size, 2))
+                                    for h in range(6):
+                                        hyper_prediction = self.cnns[j].forward_pass_hyper(pics, h)
+                                        hyper_prediction = F.softmax(prediction, dim=0)
+                                        prediction += hyper_prediction * self.cnns[j].acc_history_hyper[h]
+
                             prediction = F.softmax(prediction, dim=0)
                             classes = T.argmax(prediction, dim=1)
                             all_predictions += classes
@@ -191,7 +208,14 @@ class Consensus:
                                 pics_20x20, pics_30x30, pics_40x40 = mgi_cnn.get_resized_images(resized_pics)
                                 prediction = self.cnns[j].forward_pass(pics_20x20, pics_30x30, pics_40x40)
                             else:
-                                prediction = self.cnns[j].forward_pass(resized_pics)
+                                if isinstance(self.cnns[j], or_cnn.CNN):
+                                    prediction = self.cnns[j].forward_pass(resized_pics)
+                                else:
+                                    prediction = T.zeros((self.batch_size, 2))
+                                    for h in range(6):
+                                        hyper_prediction = self.cnns[j].forward_pass_hyper(pics, h)
+                                        hyper_prediction = F.softmax(prediction, dim=0)
+                                        prediction += hyper_prediction * self.cnns[j].acc_history_hyper[h]
                             prediction = F.softmax(prediction, dim=0)
                             all_predictions += prediction * accs[j]
                         wrong = 0
