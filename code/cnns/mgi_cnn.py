@@ -75,19 +75,19 @@ class MGI_CNN(nn.Module):
         """
             zoom-in tinklo dalies elementai.
         """
-        self.conv1_zoom_in = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv1_zoom_in = nn.Conv2d(1, 16, 3)
         self.bn1_zoom_in = nn.BatchNorm2d(16)
-        self.conv2_zoom_in = nn.Conv2d(16, 16, 3, padding=(1, 1))
+        self.conv2_zoom_in = nn.Conv2d(16, 16, 3)
         self.bn2_zoom_in = nn.BatchNorm2d(16)
         self.maxpool1_in = nn.MaxPool2d(2, stride=1)
-        self.conv3_zoom_in = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv3_zoom_in = nn.Conv2d(1, 16, 3)
         self.bn3_zoom_in = nn.BatchNorm2d(16)
-        self.conv4_zoom_in = nn.Conv2d(32, 16, 3, padding=(1, 1))
+        self.conv4_zoom_in = nn.Conv2d(32, 16, 3)
         self.bn4_zoom_in = nn.BatchNorm2d(16)
         self.maxpool2_in = nn.MaxPool2d(2, stride=1)
-        self.conv5_zoom_in = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv5_zoom_in = nn.Conv2d(1, 16, 3)
         self.bn5_zoom_in = nn.BatchNorm2d(16)
-        self.conv6_zoom_in = nn.Conv2d(32, 16, 3, padding=(1, 1))
+        self.conv6_zoom_in = nn.Conv2d(32, 16, 3)
         self.bn6_zoom_in = nn.BatchNorm2d(16)
         self.maxpool3_in = nn.MaxPool2d(2, stride=1)
 
@@ -95,19 +95,19 @@ class MGI_CNN(nn.Module):
             zoom-out tinklo dalies elementai.
         """
 
-        self.conv1_zoom_out = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv1_zoom_out = nn.Conv2d(1, 16, 3)
         self.bn1_zoom_out = nn.BatchNorm2d(16)
-        self.conv2_zoom_out = nn.Conv2d(16, 16, 3, padding=(1, 1))
+        self.conv2_zoom_out = nn.Conv2d(16, 16, 3)
         self.bn2_zoom_out = nn.BatchNorm2d(16)
         self.maxpool1_out = nn.MaxPool2d(2, stride=1)
-        self.conv3_zoom_out = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv3_zoom_out = nn.Conv2d(1, 16, 3)
         self.bn3_zoom_out = nn.BatchNorm2d(16)
-        self.conv4_zoom_out = nn.Conv2d(32, 16, 3, padding=(1, 1))
+        self.conv4_zoom_out = nn.Conv2d(32, 16, 3)
         self.bn4_zoom_out = nn.BatchNorm2d(16)
         self.maxpool2_out = nn.MaxPool2d(2, stride=1)
-        self.conv5_zoom_out = nn.Conv2d(1, 16, 3, padding=(1, 1))
+        self.conv5_zoom_out = nn.Conv2d(1, 16, 3)
         self.bn5_zoom_out = nn.BatchNorm2d(16)
-        self.conv6_zoom_out = nn.Conv2d(32, 16, 3, padding=(1, 1))
+        self.conv6_zoom_out = nn.Conv2d(32, 16, 3)
         self.bn6_zoom_out = nn.BatchNorm2d(16)
         self.maxpool3_out = nn.MaxPool2d(2, stride=1)
 
@@ -155,7 +155,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn2_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool1_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 30x30 pikseliu nuotraukomis
@@ -163,6 +163,7 @@ class MGI_CNN(nn.Module):
         batch_data_30_in = self.conv3_zoom_in(batch_data_30)
         batch_data_30_in = self.bn3_zoom_in(batch_data_30_in)
         batch_data_30_in = F.relu(batch_data_30_in)
+        batch_data_30_in = F.interpolate(batch_data_30_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             pozymiu zemelapiu (40x40 ir 30x30) konkatenavimas ir tolimesnis treniravimas su 30x30 pikseliu nuotraukomis
@@ -172,7 +173,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn4_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool2_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 20x20 pikseliu nuotraukomis
@@ -180,6 +181,7 @@ class MGI_CNN(nn.Module):
         batch_data_20_in = self.conv5_zoom_in(batch_data_20)
         batch_data_20_in = self.bn5_zoom_in(batch_data_20_in)
         batch_data_20_in = F.relu(batch_data_20_in)
+        batch_data_20_in = F.interpolate(batch_data_20_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konkatenuotu pozymiu zemelapiu (40x40 ir 30x30) ir 20x20 konkatenavimas ir 
@@ -190,7 +192,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn6_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool3_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         # ZOOM OUT
 
@@ -239,7 +241,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn2_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool1_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 30x30 pikseliu nuotraukomis
@@ -247,6 +249,7 @@ class MGI_CNN(nn.Module):
         batch_data_30_in = self.conv3_zoom_in(batch_data_30)
         batch_data_30_in = self.bn3_zoom_in(batch_data_30_in)
         batch_data_30_in = F.relu(batch_data_30_in)
+        batch_data_30_in = F.interpolate(batch_data_30_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             pozymiu zemelapiu (40x40 ir 30x30) konkatenavimas ir tolimesnis treniravimas su 30x30 pikseliu nuotraukomis
@@ -256,7 +259,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn4_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool2_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 20x20 pikseliu nuotraukomis
@@ -264,6 +267,7 @@ class MGI_CNN(nn.Module):
         batch_data_20_in = self.conv5_zoom_in(batch_data_20)
         batch_data_20_in = self.bn5_zoom_in(batch_data_20_in)
         batch_data_20_in = F.relu(batch_data_20_in)
+        batch_data_20_in = F.interpolate(batch_data_20_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konkatenuotu pozymiu zemelapiu (40x40 ir 30x30) ir 20x20 konkatenavimas ir 
@@ -274,7 +278,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_in = self.bn6_zoom_in(batch_data_zoom_in)
         batch_data_zoom_in = F.relu(batch_data_zoom_in)
         batch_data_zoom_in = self.maxpool3_in(batch_data_zoom_in)
-        batch_data_zoom_in = F.pad(batch_data_zoom_in, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_in = F.interpolate(batch_data_zoom_in, size=(20, 20), mode='bilinear', align_corners=True)
 
         # ZOOM OUT
 
@@ -288,7 +292,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_out = self.bn2_zoom_out(batch_data_zoom_out)
         batch_data_zoom_out = F.relu(batch_data_zoom_out)
         batch_data_zoom_out = self.maxpool1_out(batch_data_zoom_out)
-        batch_data_zoom_out = F.pad(batch_data_zoom_out, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_out = F.interpolate(batch_data_zoom_out, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 30x30 pikseliu nuotraukomis
@@ -296,7 +300,7 @@ class MGI_CNN(nn.Module):
         batch_data_30_out = self.conv3_zoom_out(batch_data_30)
         batch_data_30_out = self.bn3_zoom_out(batch_data_30_out)
         batch_data_30_out = F.relu(batch_data_30_out)
-
+        batch_data_30_out = F.interpolate(batch_data_30_out, size=(20, 20), mode='bilinear', align_corners=True)
         """
             pozymiu zemelapiu (20x20 ir 30x30) konkatenavimas ir tolimesnis treniravimas su 30x30 pikseliu nuotraukomis
         """
@@ -305,7 +309,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_out = self.bn4_zoom_in(batch_data_zoom_out)
         batch_data_zoom_out = F.relu(batch_data_zoom_out)
         batch_data_zoom_out = self.maxpool2_out(batch_data_zoom_out)
-        batch_data_zoom_out = F.pad(batch_data_zoom_out, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_out = F.interpolate(batch_data_zoom_out, size=(20, 20), mode='bilinear', align_corners=True)
 
         """
             konvoliucijos su 40x40 pikseliu nuotraukomis
@@ -313,7 +317,7 @@ class MGI_CNN(nn.Module):
         batch_data_40_out = self.conv5_zoom_out(batch_data_40)
         batch_data_40_out = self.bn5_zoom_out(batch_data_40_out)
         batch_data_40_out = F.relu(batch_data_40_out)
-
+        batch_data_40_out = F.interpolate(batch_data_40_out, size=(20, 20), mode='bilinear', align_corners=True)
         """
             konkatenuotu pozymiu zemelapiu (20x20 ir 30x30) ir 40x40 konkatenavimas ir 
             tolimesnis treniravimas su 40x40 pikseliu nuotraukomis
@@ -324,6 +328,7 @@ class MGI_CNN(nn.Module):
         batch_data_zoom_out = F.relu(batch_data_zoom_out)
         batch_data_zoom_out = self.maxpool3_out(batch_data_zoom_out)
         batch_data_zoom_out = F.pad(batch_data_zoom_out, [0, 1, 0, 1], mode='replicate')
+        batch_data_zoom_out = F.interpolate(batch_data_zoom_out, size=(20, 20), mode='bilinear', align_corners=True)
 
         # BENDROS KONVOLIUCIJOS:
 
