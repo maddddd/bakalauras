@@ -1,6 +1,7 @@
 # Bakalaurinis darbas. Tema - "Neuroninių tinklų naudojimas plaučių ligų analizei"
 
 Parengė Vidmantas Bakštys, 2020
+
 Darbas parengtas naudojant Python (versija 3.8) programavimo kalbą, naudojant jos distribuciją Anaconda (versija 2020.2).
 Kuriant darbą naudota Windows10 operacinė sistema, tačiau jis turėtų veikti ir ant kitų operacinių sistemų (tačiau tai nėra ištestuota).
 
