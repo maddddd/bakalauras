@@ -6,8 +6,6 @@ import torch.multiprocessing
 import numpy as np
 import pics_dataset
 import tools
-import consensus
-import mgi_cnn
 
 """
     "Paprastas" konvoliucinis neuroninis tinklas.

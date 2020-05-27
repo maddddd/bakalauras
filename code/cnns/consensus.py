@@ -2,16 +2,18 @@ import os
 from pathlib import Path
 import torch as T
 import torch.nn as nn
-import torch.optim as optim
+import numpy as np
 import torch.nn.functional as F
-import or_cnn
 import mgi_cnn
-import vgg16_cnn
 import tools
 import pics_dataset
 
 
 def resize_tensor(cnn, tensor):
+    """
+        nuotraukos tenzoriaus apkarpymas. Treniruojant tinklus, jie galejo tureti skirtingus pradinius nuotrauku
+        dydzius, todel butina pritaikyti ivesti.
+    """
     start = int((64 - cnn.image_size) / 2)
     end = int(start + cnn.image_size)
     tensor = tensor[:, start:end, start:end]
@@ -139,27 +141,87 @@ class Consensus:
             'weighted'          - grazina softmax funkcijos reiksmes. Jos sudauginamos su tikslumo istorijos duomenimis
                                 ir suformuojamas galutinis klasifikavimo rezultatas.
         """
-        temp = 0
+        if self.mode == 'majority' and len(self.cnns) % 2 == 0:
+            print('Norint naudoti daugumos balsavima, tinklu skaicius privalo buti nelyginis')
+            return
         for i in range(self.epochs):
-            ep_loss = 0
             ep_acc = []
             ep_false_pos = []
             ep_false_neg = []
             for j, (pics, labels) in enumerate(self.data_loader):
-                print(pics.size())
-                if self.mode == 'majority':
-                    for j in range(len(self.cnns)):
-                        pics = resize_tensor(self.cnns[j], pics)
-                        prediction = self.cnns[j].forward_pass(pics)
-                        prediction = F.softmax(prediction, dim=0)
-                        classes = T.argmax(prediction, dim=1)
-                    temp += 1
-                if self.mode == 'weighted':
-                    print('todo')
+                if pics.size()[0] == self.batch_size:
+                    if self.mode == 'majority':
+                        all_predictions = T.zeros(self.batch_size)
+                        for j in range(len(self.cnns)):
+                            resized_pics = resize_tensor(self.cnns[j], pics)
+                            if isinstance(self.cnns[j], mgi_cnn.MGI_CNN):
+                                pics_20x20, pics_30x30, pics_40x40 = mgi_cnn.get_resized_images(resized_pics)
+                                prediction = self.cnns[j].forward_pass(pics_20x20, pics_30x30, pics_40x40)
+                            else:
+                                prediction = self.cnns[j].forward_pass(resized_pics)
+                            prediction = F.softmax(prediction, dim=0)
+                            classes = T.argmax(prediction, dim=1)
+                            all_predictions += classes
+                        wrong = 0
+                        false_pos = 0
+                        false_neg = 0
+                        consensus_barrier = len(self.cnns) / 2
+                        for k in range(len(all_predictions)):
+                            if labels[k] == 1:
+                                if all_predictions[k] < consensus_barrier:
+                                    wrong += 1
+                                    false_neg += 1
+                            else:
+                                if all_predictions[k] > consensus_barrier:
+                                    wrong += 1
+                                    false_pos += 1
+                        acc = 1 - wrong / self.batch_size
+                        ep_acc.append(acc)
+
+                        false_pos = false_pos / self.batch_size
+                        false_neg = false_neg / self.batch_size
+                        ep_false_pos.append(false_pos)
+                        ep_false_neg.append(false_neg)
+
+                    if self.mode == 'weighted':
+                        all_predictions = T.zeros(self.batch_size, 2)
+                        for j in range(len(self.cnns)):
+                            resized_pics = resize_tensor(self.cnns[j], pics)
+                            if isinstance(self.cnns[j], mgi_cnn.MGI_CNN):
+                                pics_20x20, pics_30x30, pics_40x40 = mgi_cnn.get_resized_images(resized_pics)
+                                prediction = self.cnns[j].forward_pass(pics_20x20, pics_30x30, pics_40x40)
+                            else:
+                                prediction = self.cnns[j].forward_pass(resized_pics)
+                            prediction = F.softmax(prediction, dim=0)
+                            all_predictions += prediction * accs[j]
+                        wrong = 0
+                        false_pos = 0
+                        false_neg = 0
+                        predicted_classes = T.zeros(self.batch_size)
+                        for k in range(self.batch_size):
+                            if labels[k] == 1:
+                                if all_predictions[k, 0] > all_predictions[k, 1]:
+                                    wrong += 1
+                                    false_neg += 1
+                            else:
+                                if all_predictions[k, 1] > all_predictions[k, 0]:
+                                    wrong += 1
+                                    false_pos += 1
+                        acc = 1 - wrong / self.batch_size
+                        ep_acc.append(acc)
+
+                        false_pos = false_pos / self.batch_size
+                        false_neg = false_neg / self.batch_size
+                        ep_false_pos.append(false_pos)
+                        ep_false_neg.append(false_neg)
+
+            print('Baigta epocha ', i, 'tikslumo vidurkis %.3f ' % np.mean(ep_acc),
+                  'klaidingai teigiamu vidurkis %.3f ' % np.mean(ep_false_pos),
+                  'klaidingai neigiamu vidurkis %.3f ' % np.mean(ep_false_neg))
 
 
 if __name__ == "__main__":
     nets, accs, pos, negs = load_networks_from_paths()
 
-    cons_net = Consensus(nets, accs, pos, negs, 'majority', 0.001, 1, 32)
+    cons_net = Consensus(nets, accs, pos, negs, 'weighted', 0.001, 1, 32)
     cons_net.predict()

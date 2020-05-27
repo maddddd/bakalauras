@@ -472,15 +472,7 @@ class MGI_CNN(nn.Module):
 
 if __name__ == "__main__":
     mgi = MGI_CNN(0.001, 5, 32, 'untouched')
-    print(tools.get_model_path_in_hdd(mgi, 'mgi_cnn'))
-    # mgi.train_cnn()
+    mgi.train_cnn()
     # tools.save_model(mgi, 'mgi_cnn')
     # mgi.test_cnn()
 
-    """
-    load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent,
-                                             'trained_nets',
-                                             'mgi_cnn_lr_0.001_epochs_20_batch_size_48_image_size_40.pt'))
-    mgi_2 = tools.load_model(load_path, 'mgi_cnn', 'untouched', 10)
-    mgi_2.test_cnn()
-    """
