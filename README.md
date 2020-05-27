@@ -12,17 +12,23 @@ Pasiruošimo instrukcijos:
 2)  Parsisiunčiam Anaconda v2020.2 ir ją suinstaliuojam.
 3)  (Nebūtina) Parsisiunčiam Nvidia Cuda v10.2 ir ją suinstaliuojam (tinka tik Nvidia grafinėms kortoms).
 4)  Atidarome "Anaconda prompt" konsolę ir sukuriame naują conda aplinką:
+
 		conda create --name bakalauras		- bus sukurta nauja aplinka, vardu "bakalauras"
 5)  Aktyvuojame aplinką "Anaconda prompt" konsolėje:
+
 		activate bakalauras					- bus aktyvuota aplinka, vardu "bakalauras"
 6)  Suinstaliuojame PyTorch:
+
 		conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 	Dauguma kitų reikalingų paketų, kaip pvz. numpy ar PIL yra suinstaliuojami kartu su PyTorch paketu arba yra iškart įtraukti į Anaconda
 	distribuciją, todėl jų papildomai instaliuoti nebereikia.
+	
 7a) Jei nenorime patys išgavinėti nuotraukų iš kompiuterinės tomografijos duomenų:
 	Įeiname į katalogą "data", kuriame yra "pics.7z" failas ir jį ten pat išarchyvuojame.
+	
 7b)	Jei norime patys išgauti nuotraukas iš kompiuterinės tomografijos duomenų (gali užtrukti ilgai):
 	"Anaconda prompt" konsolėje, aktyvavę 4 žingsnyje sukurtą aplinką, rašome:
+	
 		pip install SimpleITK
 8b)	Tada parsisiunčiame kompiuterinės tomografijos duomenis iš https://luna16.grand-challenge.org/Download/
 	Reikalingi failai - subset0.zip : subset9.zip bei candidates_v2.csv failai
@@ -34,6 +40,7 @@ Pasiruošimo instrukcijos:
 Naudojimo instrukcijos:
 
 Norint naudoti tinklus, kviečiantysis kodas privalo patikrinti, ar jis yra pagrindinė programos gija, t.y. kodas turi būti apgaubtas konstrukcijos:
+
 	if __name__ == "__main__":
 
 1)  Norint naudoti neuroninį tinklą, pirma reikia jį sukurti ir ištreniruoti. Tai yra daroma tiesiai neuroninių tinklų failuose kataloge "code",
