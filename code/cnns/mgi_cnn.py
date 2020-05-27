@@ -75,7 +75,7 @@ class MGI_CNN(nn.Module):
         """
             zoom-in tinklo dalies elementai.
         """
-        self.conv1_zoom_in = nn.Conv2d(1, 16, 3, padding=(1, 1))  # grayscale, 16 conv. filters, 3x3 size
+        self.conv1_zoom_in = nn.Conv2d(1, 16, 3, padding=(1, 1))
         self.bn1_zoom_in = nn.BatchNorm2d(16)
         self.conv2_zoom_in = nn.Conv2d(16, 16, 3, padding=(1, 1))
         self.bn2_zoom_in = nn.BatchNorm2d(16)
@@ -95,7 +95,7 @@ class MGI_CNN(nn.Module):
             zoom-out tinklo dalies elementai.
         """
 
-        self.conv1_zoom_out = nn.Conv2d(1, 16, 3, padding=(1, 1))  # grayscale, 16 conv. filters, 3x3 size
+        self.conv1_zoom_out = nn.Conv2d(1, 16, 3, padding=(1, 1))
         self.bn1_zoom_out = nn.BatchNorm2d(16)
         self.conv2_zoom_out = nn.Conv2d(16, 16, 3, padding=(1, 1))
         self.bn2_zoom_out = nn.BatchNorm2d(16)
@@ -123,8 +123,8 @@ class MGI_CNN(nn.Module):
 
         input_dims = self.calc_input_dims()
 
-        self.fc1 = nn.Linear(input_dims, self.num_classes)  # perceptron
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # for learning
+        self.fc1 = nn.Linear(input_dims, self.num_classes)
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
 
@@ -472,7 +472,7 @@ class MGI_CNN(nn.Module):
 
 if __name__ == "__main__":
     # inicializuojam modeli su treniravimo tipo duomenimis
-    cnn = MGI_CNN(0.001, 50, 32, 'train', 40)
+    cnn = MGI_CNN(0.001, 100, 32, 'train', 40)
     # istreniruojam modeli - gausim svorius
     cnn.train_cnn()
     # issaugom svorius i diska
