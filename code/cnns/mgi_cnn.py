@@ -488,4 +488,3 @@ if __name__ == "__main__":
     cnn = tools.load_model(path, 'mgi_cnn', 'test', 50)
     # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
     cnn.test_cnn()
-

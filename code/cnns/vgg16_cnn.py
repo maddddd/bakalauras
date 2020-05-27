@@ -554,7 +554,7 @@ class VGG16_CNN(nn.Module):
 
 if __name__ == "__main__":
     # inicializuojam modeli su treniravimo tipo duomenimis
-    cnn = VGG16_CNN(0.001, 50, 32, 'train', 64)
+    cnn = VGG16_CNN(0.001, 100, 32, 'train', 64)
     # istreniruojam modeli - gausim svorius
     cnn.train_cnn()
     # issaugom svorius i diska

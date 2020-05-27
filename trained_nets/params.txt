@@ -1,0 +1,3 @@
+or_cnn_lr_0.001_epochs_50_batch_size_32_image_size_40 0.76588 0.20090 0.03323 
+mgi_cnn_lr_0.001_epochs_50_batch_size_32_image_size_40 0.69063 0.29520 0.01418 
+vgg16_cnn_lr_0.001_epochs_50_batch_size_32_image_size_64 0.78471 0.19872 0.01656 0.61901 0.66432 0.73516 0.72734 0.81432 0.66120 
