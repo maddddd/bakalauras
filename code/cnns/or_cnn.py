@@ -239,14 +239,17 @@ class CNN(nn.Module):
 
 
 if __name__ == "__main__":
-    cnn = CNN(0.001, 5, 32, 'untouched', 40)
-    # print(tools.get_model_path_in_hdd(cnn, 'or_cnn'))
-    # cnn.train_cnn()
-    # tools.save_model(cnn, 'or_cnn')
-    # nn.test_cnn()
+    # inicializuojam modeli su treniravimo tipo duomenimis
+    cnn = CNN(0.001, 50, 32, 'train', 40)
+    # istreniruojam modeli - gausim svorius
+    cnn.train_cnn()
+    # issaugom svorius i diska
+    tools.save_model(cnn, 'or_cnn')
+    # gaunam issaugoto tinklo kelia diske
+    path = tools.get_model_path_in_hdd(cnn, 'or_cnn')
+    # is naujo inicializuojam modeli, tik jau su testiniais duomenim
+    cnn = tools.load_model(path, 'or_cnn', 'test', 10)
+    # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
+    cnn.test_cnn()
 
-    # load_path = os.path.abspath(os.path.join(Path(os.getcwd()).parent.parent, 'trained_nets',
-    #                                         'or_cnn_lr_0.001_epochs_100_batch_size_48_image_size_40.pt'))
-    # cnn_2 = tools.load_model(load_path, 'or_cnn', 'untouched', 5)
-    # cnn_2.test_cnn()
 
