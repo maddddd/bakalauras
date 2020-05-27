@@ -14,4 +14,5 @@ Apdorojant visus duomenis (~750.000 kandidatų) skripto veikimas gali užtrukti 
 Jei skriptas lūžta (sakoma, kad negalima paskirti reikiamo atminties dydžio 
 skaitant kažkurį .mhd failą), reikia padidinti virtualios atminties dydį operacinėje sistemoje.
 
-Nenorint savarankiškai apdoroti nuotraukų, galima naudotis jau paruoštais nuotraukų rinkiniais.
+Nenorint savarankiškai apdoroti nuotraukų, galima naudotis jau paruoštu nuotraukų rinkiniu -
+pics.7z failu. Jį reikia išarchyvuoti tiesiai šioje direktorijoje.
