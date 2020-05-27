@@ -36,7 +36,7 @@ class CNN(nn.Module):
         self.false_neg_history = []
         # self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
         self.device = T.device('cpu')
-        self.conv1 = nn.Conv2d(1, 32, 3)  # grayscale, 32 conv. filters, 3x3 size
+        self.conv1 = nn.Conv2d(1, 32, 3)  # juodai balta nuotrauka (1 baitas), 32 konv. filtrai, 3x3 dydis
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 32, 3)
         self.bn2 = nn.BatchNorm2d(32)
@@ -53,8 +53,8 @@ class CNN(nn.Module):
 
         input_dims = self.calc_input_dims()
 
-        self.fc1 = nn.Linear(input_dims, self.num_classes)  # perceptron
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)  # mokymuisi!
+        self.fc1 = nn.Linear(input_dims, self.num_classes)  # perceptronas
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
         self.loss = nn.CrossEntropyLoss()
         self.to(self.device)
         self.data_set = None
