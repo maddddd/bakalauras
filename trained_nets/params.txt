@@ -1,3 +1,7 @@
-or_cnn_lr_0.001_epochs_50_batch_size_32_image_size_40 0.76588 0.20090 0.03323 
-mgi_cnn_lr_0.001_epochs_50_batch_size_32_image_size_40 0.69063 0.29520 0.01418 
-vgg16_cnn_lr_0.001_epochs_50_batch_size_32_image_size_64 0.78471 0.19872 0.01656 0.61901 0.66432 0.73516 0.72734 0.81432 0.66120 
+mgi_cnn_lr_0.001_epochs_100_batch_size_32_image_size_40 0.68565 0.30053 0.01382
+or_cnn_lr_0.001_epochs_20_batch_size_32_image_size_40 0.77912 0.18850 0.03238
+or_cnn_lr_0.001_epochs_19_batch_size_32_image_size_40 0.70625 0.26062 0.03312
+or_cnn_lr_0.001_epochs_100_batch_size_32_image_size_40 0.77600 0.19200 0.03200
+or_cnn_lr_0.001_epochs_50_batch_size_32_image_size_40 0.76712 0.19962 0.03325
+vgg16_cnn_lr_0.001_epochs_100_batch_size_32_image_size_64 0.78471 0.19872 0.01656 0.61901 0.66432 0.73516 0.72734 0.81432 0.66120
+mgi_cnn_lr_0.001_epochs_70_batch_size_32_image_size_40 0.58637 0.40875 0.00487

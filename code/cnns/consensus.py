@@ -247,5 +247,5 @@ class Consensus:
 if __name__ == "__main__":
     nets, accs, pos, negs = load_networks_from_paths()
 
-    cons_net = Consensus(nets, accs, pos, negs, 'weighted', 0.001, 1, 32)
+    cons_net = Consensus(nets, accs, pos, negs, 'weighted', 0.001, 5, 32)
     cons_net.predict()

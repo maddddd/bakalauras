@@ -562,6 +562,6 @@ if __name__ == "__main__":
     # gaunam issaugoto tinklo kelia diske
     path = tools.get_model_path_in_hdd(cnn, 'vgg16_cnn')
     # is naujo inicializuojam modeli, tik jau su testiniais duomenim
-    cnn = tools.load_model(path, 'vgg16_cnn', 'test', 50)
+    cnn = tools.load_model(path, 'vgg16_cnn', 'test', 100)
     # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
     cnn.test_cnn()

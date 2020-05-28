@@ -240,7 +240,7 @@ class CNN(nn.Module):
 
 if __name__ == "__main__":
     # inicializuojam modeli su treniravimo tipo duomenimis
-    cnn = CNN(0.001, 100, 32, 'train', 40)
+    cnn = CNN(0.001, 50, 32, 'train', 40)
     # istreniruojam modeli - gausim svorius
     cnn.train_cnn()
     # issaugom svorius i diska
@@ -248,8 +248,6 @@ if __name__ == "__main__":
     # gaunam issaugoto tinklo kelia diske
     path = tools.get_model_path_in_hdd(cnn, 'or_cnn')
     # is naujo inicializuojam modeli, tik jau su testiniais duomenim
-    cnn = tools.load_model(path, 'or_cnn', 'test', 50)
+    cnn = tools.load_model(path, 'or_cnn', 'test', 10)
     # testuojam modeli su testiniais duomenim, tikslumas bus issaugotas
     cnn.test_cnn()
-
-
