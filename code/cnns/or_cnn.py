@@ -240,7 +240,7 @@ class CNN(nn.Module):
 
 if __name__ == "__main__":
     # inicializuojam modeli su treniravimo tipo duomenimis
-    cnn = CNN(0.001, 50, 32, 'train', 40)
+    cnn = CNN(0.001, 100, 32, 'train', 40)
     # istreniruojam modeli - gausim svorius
     cnn.train_cnn()
     # issaugom svorius i diska
